@@ -1,4 +1,4 @@
-export const elementToConfig = (type, props, ...children) => {
+export function elementToConfig(type, props, ...children) {
   let card = {};
   if (typeof type === "function") {
     card = type();
@@ -22,7 +22,21 @@ export const elementToConfig = (type, props, ...children) => {
   }
 
   return card;
-};
+}
+
+export function configToJsx(config: { [key: string]: any }) {
+  const children = (config.cards || []).map(configToJsx).join("");
+  const props = Object.entries(config)
+    .filter(([key]) => !["cards", "type"].includes(key))
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(" ");
+
+  if (children.length === 0) {
+    return `<${config.type} ${props}/>`;
+  }
+
+  return `<${config.type} ${props}>${children}</${config.type}>`;
+}
 
 declare global {
   namespace JSX {
