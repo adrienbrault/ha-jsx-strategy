@@ -72,7 +72,7 @@ export function elementToConfig(type, props, ...children) {
   if (/^custom-/.test(card.type as string)) {
     card = {
       ...card,
-      type: card.type.replace("custom-", "custom:"),
+      type: `${card.type.replace("custom-", "custom:")}-card`,
     };
   }
 

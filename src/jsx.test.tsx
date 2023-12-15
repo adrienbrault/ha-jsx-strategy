@@ -5,14 +5,10 @@ import * as prettier from "prettier";
 
 const HomeView = () => (
   <vertical-stack>
-    <custom:bubble-card card_type="pop-up" hash="#bureau" name="Bureau" />
-    <custom:bubble-card
-      card_type="separator"
-      name="Lights"
-      icon="mdi:lightbulb"
-    />
+    <custom-bubble card_type="pop-up" hash="#bureau" name="Bureau" />
+    <custom-bubble card_type="separator" name="Lights" icon="mdi:lightbulb" />
     <horizontal-stack>
-      <custom:bubble-card
+      <custom-bubble
         card_type="button"
         entity="light.bureau_plafond"
         button_type="switch"
@@ -20,9 +16,9 @@ const HomeView = () => (
         show_state="true"
       />
       <light entity="light.bar"></light>
-      <custom-mushroom-title-card
+      <custom-mushroom-title
         subtitle_tap_action={{ action: "none", event: "" }}
-      ></custom-mushroom-title-card>
+      ></custom-mushroom-title>
     </horizontal-stack>
   </vertical-stack>
 );
