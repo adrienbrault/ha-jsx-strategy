@@ -21,9 +21,10 @@ git clone https://github.com/adrienbrault/ha-jsx-strategy.git www/jsx-strategy
 
 [Add a dashboard resource](https://my.home-assistant.io/redirect/lovelace_resources/) with url `/local/jsx-strategy/index.js` as a `JavaScript Module`.
 
-Then [create a new dashboard](https://my.home-assistant.io/redirect/lovelace_dashboards/) with the following YAML configuration:
+[Create a new dashboard from scratch](https://my.home-assistant.io/redirect/lovelace_dashboards/) > open the dashboard > edit dashboard > raw configuration editor, and use the following YAML configuration:
 ```yaml
-type: custom:jsx
+strategy:
+  type: custom:jsx
 ```
 
 At this point the default dashboard should show areas and their lights.
