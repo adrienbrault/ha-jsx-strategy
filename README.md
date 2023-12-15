@@ -14,19 +14,26 @@ VSCode will provide you with intellisense and type checking thanks to card types
 
 [First, install bun](https://bun.sh).
 
-Then:
+Then clone the repository in your `www` folder:
 ```
 git clone https://github.com/adrienbrault/jsx-strategy.git www/jsx-strategy
 ```
 
-Customize [www/jsx-strategy/src/index.tsx](/src/index.tsx) to your needs.
+[Add a dashboard resource](https://my.home-assistant.io/redirect/lovelace_resources/) with url `/local/jsx-strategy/index.js` as a `JavaScript Module`.
+
+Then [create a new dashboard](https://my.home-assistant.io/redirect/lovelace_dashboards/) with the following YAML configuration:
+```yaml
+type: custom:jsx
+```
+
+At this point the default dashboard should show areas and their lights.
+
+Finally, customize [www/jsx-strategy/src/index.tsx](/src/index.tsx) to your needs.
 
 Every time you edit this file, make sure to run:
 ```
 bun build www/jsx-strategy/src/index.tsx > www/jsx-strategy/index.js
 ```
-
-[Add a dashboard resource](https://my.home-assistant.io/redirect/lovelace_resources/) with url `/local/jsx-strategy/index.js` as a `JavaScript Module`.
 
 ## Development
 
