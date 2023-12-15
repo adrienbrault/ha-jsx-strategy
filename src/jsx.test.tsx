@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { configToJsx, elementToConfig } from "./index";
+import { configToJsx, elementToConfig } from "./jsx";
 import { parse, stringify } from "yaml";
 import * as prettier from "prettier";
 
