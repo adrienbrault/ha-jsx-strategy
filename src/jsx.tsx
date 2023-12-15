@@ -65,13 +65,12 @@ export function elementToConfig(type, props, ...children) {
   }
   if (typeof type === "string") {
     card = { type };
-  }
-
-  if (props && Object.keys(props).length > 0) {
-    card = {
-      ...card,
-      ...props,
-    };
+    if (props && Object.keys(props).length > 0) {
+      card = {
+        ...card,
+        ...props,
+      };
+    }
   }
 
   if (children.length > 0) {

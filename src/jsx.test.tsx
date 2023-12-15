@@ -28,7 +28,7 @@ const HomeView = () => (
 );
 
 test("HomeView to yaml", () => {
-  expect(stringify(<HomeView />)).toEqual(
+  expect(stringify(<HomeView foo="bar" />)).toEqual(
     `type: vertical-stack
 cards:
   - type: custom:bubble-card
