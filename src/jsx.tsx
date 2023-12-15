@@ -50,7 +50,7 @@ import { WeatherForecastCardConfig } from "./cards/weather-forecast";
 export function elementToConfig(type, props, ...children) {
   let card = {};
   if (typeof type === "function") {
-    card = type();
+    card = type(props);
   }
   if (typeof type === "string") {
     card = { type };
