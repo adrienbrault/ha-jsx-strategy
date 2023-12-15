@@ -17,9 +17,15 @@ VSCode will provide you with intellisense and type checking using [a library of 
 Then clone the repository in your `www` folder:
 ```
 git clone https://github.com/adrienbrault/ha-jsx-strategy.git www/jsx-strategy
+cd www/jsx-strategy
 ```
 
-[Add a dashboard resource](https://my.home-assistant.io/redirect/lovelace_resources/) with url `/local/jsx-strategy/index.js` as a `JavaScript Module`.
+Install dependencies:
+```bash
+bun install
+```
+
+Back in Home Assistant, [add a dashboard resource](https://my.home-assistant.io/redirect/lovelace_resources/) with url `/local/jsx-strategy/dist/strategy.js` as a `JavaScript Module`.
 
 [Create a new dashboard from scratch](https://my.home-assistant.io/redirect/lovelace_dashboards/) > open the dashboard > edit dashboard > raw configuration editor, and use the following YAML configuration:
 ```yaml
@@ -29,20 +35,17 @@ strategy:
 
 At this point the default dashboard should show areas and their lights.
 
-Finally, customize [www/jsx-strategy/src/index.tsx](/src/index.tsx) to your needs.
+Finally, customize [www/jsx-strategy/src/strategy.tsx](/src/strategy.tsx) to your needs.
 
-Every time you edit this file, make sure to run:
+Every time you edit this file, make sure to run one of the following commands:
 ```
-bun build www/jsx-strategy/src/index.tsx > www/jsx-strategy/index.js
+bun run build
+bun run build-watch
 ```
 
 ## Development
 
-To install dependencies:
 
-```bash
-bun install
-```
 
 To run tests:
 

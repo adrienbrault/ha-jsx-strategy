@@ -11,5 +11,9 @@
   "dependencies": {
     "prettier": "^3.1.1",
     "yaml": "^2.3.4"
+  },
+  "scripts": {
+    "build": "bun build src/strategy.tsx --outfile dist/strategy.js",
+    "build-watch": "bun build src/strategy.tsx --outfile dist/strategy.js --watch"
   }
 }
