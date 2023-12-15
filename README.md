@@ -1,8 +1,14 @@
 # ha-react-dashboard
 
-Goal: Use https://developers.home-assistant.io/docs/frontend/custom-ui/custom-strategy/ to configure a dashboard, not with yaml, but JSX/TSX.
+[Home Assistant Custom Strategies](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-strategy/)
+enable you to build your own dashboards using javascript.
 
-In my case, I want to do something like https://github.com/AalianKhan/mushroom-strategy, but with React and my own config/cards.
+This project is a template to build a dashboard using JSX/TSX and functional components.
+
+VSCode will provide you with intellisense and type checking thanks to card types.
+
+![CleanShot 2023-12-15 at 03 07 53@2x](https://github.com/adrienbrault/jsx-strategy/assets/611271/1f67f5b3-7d87-40c8-95b1-d1f9ceb35e5e)
+![CleanShot 2023-12-15 at 03 09 08@2x](https://github.com/adrienbrault/jsx-strategy/assets/611271/de8a4d78-6584-4aec-8c9e-00c2bb12088b)
 
 ## Installation
 
@@ -13,8 +19,7 @@ Then:
 git clone https://github.com/adrienbrault/jsx-strategy.git www/jsx-strategy
 ```
 
-Customize `www/jsx-strategy/src/index.tsx` to your needs.
-Use VSCode for autocompletion and type checking!
+Customize [www/jsx-strategy/src/index.tsx](/src/index.tsx) to your needs.
 
 Every time you edit this file, make sure to run:
 ```
