@@ -3,7 +3,9 @@
 [Home Assistant Custom Strategies](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-strategy/)
 enable you to build your own dashboards using javascript.
 
-This project is a template to build a dashboard using JSX/TSX. TLDR: Make loops, conditionals and share configuration using functions.
+This project is a template to build a dashboard using JSX/TSX. Each JSX element will be converted to the right YAML at runtime.
+
+TLDR: Make loops, conditionals and reuse configuration using functions.
 
 VSCode will provide you with intellisense and type checking using [a library of card types](#documented-cards).
 
