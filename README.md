@@ -55,8 +55,11 @@ Run:
 
 ```bash
 cat myconfiguration.yaml | bun run src/convert.ts
+```
 
-# or
+Or:
+
+```bash
 bun run src/convert.ts "
 - type: custom:bubble-card
   card_type: button
