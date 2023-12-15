@@ -1,36 +1,16 @@
+import { HomeArea } from "./components/HomeArea";
 import {
   AreaRegistryEntry,
   DeviceRegistryEntry,
   EntityRegistryEntry,
 } from "./config-types";
 import { elementToConfig } from "./jsx";
-
-// Create your own components
-const AreaWithLights = ({
-  area,
-  entities,
-}: {
-  area: AreaRegistryEntry;
-  entities: Array<EntityRegistryEntry>;
-}) => {
-  const lightEntities = entities.filter((entity) =>
-    entity.entity_id.startsWith("light.")
-  );
-
-  return (
-    <vertical-stack>
-      <custom-mushroom-title
-        title={`${area.name} - ${area.area_id}`}
-      ></custom-mushroom-title>
-      {...lightEntities.map((entity) => {
-        return <custom-mushroom-light entity={entity.entity_id} />;
-      })}
-    </vertical-stack>
-  );
-};
+import { States } from "./strategy-utils";
 
 class JsxStrategy {
   static async generateDashboard(info) {
+    const states: States = info.hass.states;
+
     const [areas, devices, entities]: [
       Array<AreaRegistryEntry>,
       Array<DeviceRegistryEntry>,
@@ -46,15 +26,23 @@ class JsxStrategy {
       title: "Generated Dashboard",
       views: [
         {
-          cards: areas.map((area) => (
-            // Use your component
-            <AreaWithLights
-              area={area}
-              entities={entities.filter(
-                (entity) => entity.area_id === area.area_id
-              )}
-            />
-          )),
+          cards: areas.map((area) => {
+            const areaEntities = entities.filter(
+              (entity) => entity.area_id === area.area_id
+            );
+            const areaStates = Object.fromEntries(
+              Object.entries(states).filter(([entityId]) =>
+                areaEntities.some((entity) => entity.entity_id === entityId)
+              )
+            );
+            return (
+              <HomeArea
+                area={area}
+                entities={areaEntities}
+                states={areaStates}
+              />
+            );
+          }),
         },
       ],
     };
