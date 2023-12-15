@@ -161,28 +161,31 @@ declare global {
       "horizontal-stack": any;
       "custom-bubble-card": any;
 
-      "custom-mushroom-alarm-control-panel": Omit<
+      "custom-mushroom-alarm-control-panel-card": Omit<
         MushroomAlarmPanelCardConfig,
         "type"
       >;
-      "custom-mushroom-chips": Omit<MushroomChipsCardConfig, "type">;
-      "custom-mushroom-climate": Omit<MushroomClimateCardConfig, "type">;
-      "custom-mushroom-cover": Omit<MushroomCoverCardConfig, "type">;
-      "custom-mushroom-entity": Omit<MushroomEntityCardConfig, "type">;
-      "custom-mushroom-fan": Omit<MushroomFanCardConfig, "type">;
-      "custom-mushroom-humidifier": Omit<MushroomHumidiferCardConfig, "type">;
-      "custom-mushroom-light": Omit<MushroomLightCardConfig, "type">;
-      "custom-mushroom-lock": Omit<MushroomLockCardConfig, "type">;
-      "custom-mushroom-media-layer": Omit<
+      "custom-mushroom-chips-card": Omit<MushroomChipsCardConfig, "type">;
+      "custom-mushroom-climate-card": Omit<MushroomClimateCardConfig, "type">;
+      "custom-mushroom-cover-card": Omit<MushroomCoverCardConfig, "type">;
+      "custom-mushroom-entity-card": Omit<MushroomEntityCardConfig, "type">;
+      "custom-mushroom-fan-card": Omit<MushroomFanCardConfig, "type">;
+      "custom-mushroom-humidifier-card": Omit<
+        MushroomHumidiferCardConfig,
+        "type"
+      >;
+      "custom-mushroom-light-card": Omit<MushroomLightCardConfig, "type">;
+      "custom-mushroom-lock-card": Omit<MushroomLockCardConfig, "type">;
+      "custom-mushroom-media-player-card": Omit<
         MushroomMediaPlayerCardConfig,
         "type"
       >;
-      "custom-mushroom-number": Omit<MushroomNumberCardConfig, "type">;
-      "custom-mushroom-person": Omit<MushroomPersonCardConfig, "type">;
-      "custom-mushroom-select": Omit<MushroomSelectCardConfig, "type">;
-      "custom-mushroom-template": Omit<MushroomTemplateCardConfig, "type">;
-      "custom-mushroom-title": Omit<MushroomTitleCardConfig, "type">;
-      "custom-mushroom-update": Omit<MushroomUpdateCardConfig, "type">;
+      "custom-mushroom-number-card": Omit<MushroomNumberCardConfig, "type">;
+      "custom-mushroom-person-card": Omit<MushroomPersonCardConfig, "type">;
+      "custom-mushroom-select-card": Omit<MushroomSelectCardConfig, "type">;
+      "custom-mushroom-template-card": Omit<MushroomTemplateCardConfig, "type">;
+      "custom-mushroom-title-card": Omit<MushroomTitleCardConfig, "type">;
+      "custom-mushroom-update-card": Omit<MushroomUpdateCardConfig, "type">;
 
       [key: string]: any;
     }
