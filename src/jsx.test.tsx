@@ -5,10 +5,14 @@ import * as prettier from "prettier";
 
 const HomeView = () => (
   <vertical-stack>
-    <custom-bubble card_type="pop-up" hash="#bureau" name="Bureau" />
-    <custom-bubble card_type="separator" name="Lights" icon="mdi:lightbulb" />
+    <custom-bubble-card card_type="pop-up" hash="#bureau" name="Bureau" />
+    <custom-bubble-card
+      card_type="separator"
+      name="Lights"
+      icon="mdi:lightbulb"
+    />
     <horizontal-stack>
-      <custom-bubble
+      <custom-bubble-card
         card_type="button"
         entity="light.bureau_plafond"
         button_type="switch"
@@ -16,9 +20,9 @@ const HomeView = () => (
         show_state="true"
       />
       <light entity="light.bar"></light>
-      <custom-mushroom-title
+      <custom-mushroom-title-card
         subtitle_tap_action={{ action: "none", event: "" }}
-      ></custom-mushroom-title>
+      ></custom-mushroom-title-card>
     </horizontal-stack>
   </vertical-stack>
 );
@@ -97,14 +101,14 @@ cards:
     )
   ).toEqual(
     `<vertical-stack>
-  <custom:bubble-card card_type="pop-up" hash="#bureau" name="Bureau" />
-  <custom:bubble-card
+  <custom-bubble-card card_type="pop-up" hash="#bureau" name="Bureau" />
+  <custom-bubble-card
     card_type="separator"
     name="Lights"
     icon="mdi:lightbulb"
   />
   <horizontal-stack>
-    <custom:bubble-card
+    <custom-bubble-card
       card_type="button"
       entity="light.bureau_plafond"
       button_type="switch"

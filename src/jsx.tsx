@@ -48,6 +48,17 @@ import { TileCardConfig } from "./cards/tile";
 import { WeatherForecastCardConfig } from "./cards/weather-forecast";
 
 export function elementToConfig(type, props, ...children) {
+  if (props) {
+    // jsx doesn't like attributes that start with a number, so those are prefixed with an underscore
+    // we need to remove that underscore
+    props = Object.entries(props).reduce((acc, [key, value]) => {
+      if (/^_/.test(key)) {
+        key = key.replace("_", "");
+      }
+      return { ...acc, [key]: value };
+    }, {});
+  }
+
   let card = {};
   if (typeof type === "function") {
     card = type(props);
@@ -72,7 +83,7 @@ export function elementToConfig(type, props, ...children) {
   if (/^custom-/.test(card.type as string)) {
     card = {
       ...card,
-      type: `${card.type.replace("custom-", "custom:")}-card`,
+      type: `${card.type.replace("custom-", "custom:")}`,
     };
   }
 
@@ -80,17 +91,36 @@ export function elementToConfig(type, props, ...children) {
 }
 
 export function configToJsx(config: { [key: string]: any }) {
-  const children = (config.cards || []).map(configToJsx).join("");
+  const children = (config.cards || config.views || [])
+    .map(configToJsx)
+    .join("");
   const props = Object.entries(config)
-    .filter(([key]) => !["cards", "type"].includes(key))
-    .map(([key, value]) => `${key}="${value}"`)
+    .filter(([key]) => !["cards", "type", "views"].includes(key))
+    .map(([key, value]) => {
+      if (/^[0-9]/.test(key)) {
+        // because jsx doesn't like attributes that start with a number, we prefix them with an underscore
+        key = `_${key}`;
+      }
+
+      // if scalar use foo="scalar" format
+      if (typeof value === "string" || typeof value === "number") {
+        return `${key}="${value}"`;
+      }
+
+      if (typeof value === "object" && "type" in value) {
+        return `${key}={${configToJsx(value)}}`;
+      }
+
+      return `${key}={${JSON.stringify(value)}}`;
+    })
     .join(" ");
+  let tagName: string = (config.type || "div").replace(":", "-");
 
   if (children.length === 0) {
-    return `<${config.type} ${props}/>`;
+    return `<${tagName} ${props}/>`;
   }
 
-  return `<${config.type} ${props}>${children}</${config.type}>`;
+  return `<${tagName} ${props}>${children}</${tagName}>`;
 }
 
 declare global {

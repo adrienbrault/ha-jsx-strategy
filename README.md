@@ -43,6 +43,35 @@ bun run build
 bun run build-watch
 ```
 
+## Migration
+
+You can convert an existing YAML configuration of a single card or entire dashboard to jsx with a command:
+
+```bash
+cat myconfiguration.yaml | bun run src/convert.ts
+
+# or like this
+bun run src/convert.ts "
+- type: custom:bubble-card
+  card_type: button
+  entity: light.bureau_plafond
+  button_type: switch
+  icon: phu:ceiling-round
+  show_state: true"
+```
+
+Sample output:
+
+```jsx
+<custom-bubble-card
+  card_type="button"
+  entity="light.bureau_plafond"
+  button_type="switch"
+  icon="phu:ceiling-round"
+  show_state={true}
+/>;
+```
+
 ## Development
 
 
