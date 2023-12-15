@@ -1,4 +1,8 @@
-import { Area, Device, Entity } from "./config-types";
+import {
+  AreaRegistryEntry,
+  DeviceRegistryEntry,
+  EntityRegistryEntry,
+} from "./config-types";
 import { elementToConfig } from "./jsx";
 
 // Create your own components
@@ -6,8 +10,8 @@ const AreaWithLights = ({
   area,
   entities,
 }: {
-  area: Area;
-  entities: Array<Entity>;
+  area: AreaRegistryEntry;
+  entities: Array<EntityRegistryEntry>;
 }) => {
   const lightEntities = entities.filter((entity) =>
     entity.entity_id.startsWith("light.")
@@ -28,9 +32,9 @@ const AreaWithLights = ({
 class JsxStrategy {
   static async generateDashboard(info) {
     const [areas, devices, entities]: [
-      Array<Area>,
-      Array<Device>,
-      Array<Entity>,
+      Array<AreaRegistryEntry>,
+      Array<DeviceRegistryEntry>,
+      Array<EntityRegistryEntry>,
     ] = await Promise.all([
       info.hass.callWS({ type: "config/area_registry/list" }),
       info.hass.callWS({ type: "config/device_registry/list" }),

@@ -1,56 +1,123 @@
-export type Area = {
+//github.com/home-assistant/frontend/blob/02d2bde269df4012d18e3de86ca637b414781a6e/src/data/area_registry.ts#L27
+
+export interface AreaRegistryEntry {
+  area_id: string;
+  name: string;
+  picture: string | null;
   aliases: string[];
-  area_id: string;
-  name: string;
-  picture: string;
-};
+}
 
-export type Device = {
-  area_id: string;
+// from https://github.com/home-assistant/frontend/blob/02d2bde269df4012d18e3de86ca637b414781a6e/src/data/device_registry.ts#L24
+
+export interface DeviceRegistryEntry {
+  id: string;
   config_entries: string[];
-  configuration_url: string | null;
-  connections: [string, string][];
-  disabled_by: string;
-  entry_type: string | null;
+  connections: Array<[string, string]>;
+  identifiers: Array<[string, string]>;
+  manufacturer: string | null;
+  model: string | null;
+  name: string | null;
+  sw_version: string | null;
   hw_version: string | null;
-  id: string;
-  identifiers: [string, string][];
-  manufacturer: string;
-  model: string;
-  name: string;
-  name_by_user: string | null;
   serial_number: string | null;
-  sw_version: string;
-  via_device_id: string;
-};
+  via_device_id: string | null;
+  area_id: string | null;
+  name_by_user: string | null;
+  entry_type: "service" | null;
+  disabled_by: "user" | "integration" | "config_entry" | null;
+  configuration_url: string | null;
+}
 
-export type Entity = {
-  area_id: null;
-  config_entry_id: null;
-  device_id: null;
-  disabled_by: null;
-  entity_category: null;
-  entity_id: string;
-  has_entity_name: boolean;
-  hidden_by: null;
-  icon: null;
+// from https://github.com/home-assistant/frontend/blob/02d2bde269df4012d18e3de86ca637b414781a6e/src/data/entity_registry.ts#L52
+
+type entityCategory = "config" | "diagnostic";
+
+export interface EntityRegistryEntry {
   id: string;
-  name: null;
-  options: {
-    conversation: {
-      should_expose: boolean;
-    };
-    cloud: {
-      alexa: {
-        should_expose: boolean;
-      };
-      google_assistant: {
-        should_expose: boolean;
-      };
-    };
-  };
-  original_name: null;
+  entity_id: string;
+  name: string | null;
+  icon: string | null;
   platform: string;
-  translation_key: null;
+  config_entry_id: string | null;
+  device_id: string | null;
+  area_id: string | null;
+  disabled_by: "user" | "device" | "integration" | "config_entry" | null;
+  hidden_by: Exclude<EntityRegistryEntry["disabled_by"], "config_entry">;
+  entity_category: entityCategory | null;
+  has_entity_name: boolean;
+  original_name?: string;
   unique_id: string;
-};
+  translation_key?: string;
+  options: EntityRegistryOptions | null;
+}
+
+export interface EntityRegistryOptions {
+  number?: NumberEntityOptions;
+  sensor?: SensorEntityOptions;
+  lock?: LockEntityOptions;
+  weather?: WeatherEntityOptions;
+  light?: LightEntityOptions;
+  switch_as_x?: SwitchAsXEntityOptions;
+  conversation?: Record<string, unknown>;
+  "cloud.alexa"?: Record<string, unknown>;
+  "cloud.google_assistant"?: Record<string, unknown>;
+}
+
+export interface SensorEntityOptions {
+  display_precision?: number | null;
+  suggested_display_precision?: number | null;
+  unit_of_measurement?: string | null;
+}
+
+export interface LightEntityOptions {
+  favorite_colors?: LightColor[];
+}
+
+export interface NumberEntityOptions {
+  unit_of_measurement?: string | null;
+}
+
+export interface LockEntityOptions {
+  default_code?: string | null;
+}
+
+export interface WeatherEntityOptions {
+  precipitation_unit?: string | null;
+  pressure_unit?: string | null;
+  temperature_unit?: string | null;
+  visibility_unit?: string | null;
+  wind_speed_unit?: string | null;
+}
+
+export interface SwitchAsXEntityOptions {
+  entity_id: string;
+}
+
+export interface EntityRegistryOptions {
+  number?: NumberEntityOptions;
+  sensor?: SensorEntityOptions;
+  lock?: LockEntityOptions;
+  weather?: WeatherEntityOptions;
+  light?: LightEntityOptions;
+  switch_as_x?: SwitchAsXEntityOptions;
+  conversation?: Record<string, unknown>;
+  "cloud.alexa"?: Record<string, unknown>;
+  "cloud.google_assistant"?: Record<string, unknown>;
+}
+
+export type LightColor =
+  | {
+      color_temp_kelvin: number;
+    }
+  | {
+      hs_color: [number, number];
+    }
+  | {
+      rgb_color: [number, number, number];
+    }
+  | {
+      rgbw_color: [number, number, number, number];
+    }
+  | {
+      rgbww_color: [number, number, number, number, number];
+    };
