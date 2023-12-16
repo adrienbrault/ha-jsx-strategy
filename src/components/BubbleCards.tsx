@@ -15,7 +15,7 @@ export const BubbleCards = ({
   ];
 };
 
-const BubbleAreaCard = ({ area, entities, states }: AreaConfig) => {
+const BubbleAreaCard = ({ area, entities, states, icon }: AreaConfig) => {
   const coverEntityId = findFirstStatesEntityId(states, "cover");
   let coverCard = null;
   if (coverEntityId) {
@@ -51,7 +51,7 @@ const BubbleAreaCard = ({ area, entities, states }: AreaConfig) => {
         card_type="pop-up"
         hash={`#${area.area_id}`}
         name={area.name}
-        //icon="phu:rooms-office"
+        icon={icon}
         // entity="light.bureau"
         // state="sensor.bureau_room_temperature"
         auto_close="15000"
@@ -102,7 +102,10 @@ const BubbleHorizontalButtons = ({
     if (entityId) {
       bubbleHorizontalButtonsStackConfig[`_${index + 1}_entity`] = entityId;
     }
-    // bubbleHorizontalButtonsStackConfig[`_${index + 1}_icon`] = "phu:rooms-office";
+    if (areaConfig.icon) {
+      bubbleHorizontalButtonsStackConfig[`_${index + 1}_icon`] =
+        areaConfig.icon;
+    }
 
     const motionEntityId =
       findFirstStatesEntityId(areaConfig.states, "binary_sensor", "motion") ||

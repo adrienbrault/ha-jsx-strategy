@@ -14,10 +14,12 @@ export const HomeArea = ({
   area,
   entities,
   states,
+  icon,
 }: {
   area: AreaRegistryEntry;
   entities: Array<EntityRegistryEntry>;
   states: States;
+  icon?: string;
 }) => {
   const secondary = areaSecondary(states);
   const { badge_color, badge_icon } = areaBadge(states);
@@ -27,7 +29,7 @@ export const HomeArea = ({
     <custom-mushroom-template-card
       primary={area.name}
       secondary={secondary}
-      icon="mdi:texture-box"
+      icon={icon || "mdi:texture-box"}
       icon_color="blue"
       tap_action={{ action: "navigate", navigation_path: `#${area.area_id}` }}
       badge_color={badge_color}
