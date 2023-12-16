@@ -13,7 +13,11 @@ export type AreaConfig = {
   entities: Array<EntityRegistryEntry>;
   states: States;
   icon?: string;
+  entityIdsByDomain: {
+    [domain: string]: Array<string>;
+  };
 };
+
 const configFactory = (
   areas: Array<AreaRegistryEntry>,
   entities: Array<EntityRegistryEntry>,
@@ -32,11 +36,27 @@ const configFactory = (
         )
       );
 
+      let entityIdsByDomain: {
+        [domain: string]: Array<string>;
+      } = Object.fromEntries(domains.map((domain) => [domain, []]));
+      entityIdsByDomain = areaEntities
+        .map((entity) => ({
+          domain: entity.entity_id.split(".")[0],
+          entity,
+        }))
+        .reduce((acc, { domain, entity }) => {
+          return {
+            ...acc,
+            [domain]: [...(acc[domain] || []), entity.entity_id],
+          };
+        }, entityIdsByDomain);
+
       return {
         area,
         entities: areaEntities,
         states: areaStates,
         icon: areasConfig?.[area.area_id]?.icon,
+        entityIdsByDomain,
       };
     });
 };
@@ -84,14 +104,7 @@ class JsxStrategy {
       views: [
         {
           cards: [
-            ...areaConfigs.map(({ area, entities, states, icon }) => (
-              <HomeArea
-                area={area}
-                entities={entities}
-                states={states}
-                icon={icon}
-              />
-            )),
+            ...areaConfigs.map((areaConfig) => <HomeArea {...areaConfig} />),
             ...(<BubbleCards areaConfigs={areaConfigs} />),
           ],
         },
@@ -105,3 +118,32 @@ class JsxStrategy {
 }
 
 customElements.define("ll-strategy-jsx", JsxStrategy);
+const domains = [
+  "light",
+  "switch",
+  "input_boolean",
+  "input_number",
+  "input_select",
+  "input_text",
+  "input_datetime",
+  "scene",
+  "script",
+  "automation",
+  "cover",
+  "fan",
+  "media_player",
+  "lock",
+  "climate",
+  "humidifier",
+  "person",
+  "number",
+  "select",
+  "template",
+  "update",
+  "camera",
+  "sensor",
+  "binary_sensor",
+  "thermostat",
+  "weather",
+  "plant",
+];

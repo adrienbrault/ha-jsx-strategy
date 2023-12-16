@@ -1,6 +1,7 @@
 import { elementToConfig } from "../jsx";
 import { AreaConfig } from "../strategy";
 import { findFirstStatesEntityId, findStatesEntities } from "../strategy-utils";
+import * as R from "remeda";
 
 export const BubbleCards = ({
   areaConfigs,
@@ -8,42 +9,136 @@ export const BubbleCards = ({
   areaConfigs: Array<AreaConfig>;
 }) => {
   return [
-    ...areaConfigs.map(({ area, entities, states }) => (
-      <BubbleAreaCard area={area} entities={entities} states={states} />
-    )),
+    ...areaConfigs.map((areaConfig) => <BubbleAreaCard {...areaConfig} />),
     <BubbleHorizontalButtons areaConfigs={areaConfigs} />,
   ];
 };
 
-const BubbleAreaCard = ({ area, entities, states, icon }: AreaConfig) => {
-  const coverEntityId = findFirstStatesEntityId(states, "cover");
-  let coverCard = null;
-  if (coverEntityId) {
-    coverCard = <custom-bubble-card card_type="cover" entity={coverEntityId} />;
-  }
+const groupCards = (cards: Array<any>, groupSize: number) => {
+  return R.chunk(cards, groupSize).map((group) => (
+    <horizontal-stack>{...group}</horizontal-stack>
+  ));
+};
 
-  const climateEntityId = findFirstStatesEntityId(states, "climate");
-  let climateCard = null;
-  if (climateEntityId) {
-    climateCard = (
-      <custom-mushroom-climate-card
-        entity={climateEntityId}
-        collapsible_controls={false}
-        fill_container={false}
-        hvac_modes={["heat", "cool"]}
-        show_temperature_control={true}
-        hold_action={{ action: "more-info" }}
-        double_tap_action={{ action: "more-info" }}
-        card_mod={{
-          style: "ha-card {\n  border: none;\n  padding: 0 !important;\n}\n",
-        }}
+const BubbleAreaCard = ({
+  area,
+  entities,
+  states,
+  icon,
+  entityIdsByDomain,
+}: AreaConfig) => {
+  const lightCards = entityIdsByDomain["light"].map((entityId) => {
+    return (
+      <custom-bubble-card
+        card_type="button"
+        entity={entityId}
+        button_type="switch"
+        show_state={true}
       />
     );
-  }
-
-  let cameraCards = findStatesEntities(states, "camera").map((entity) => {
-    return <picture-entity camera_view="live" entity={entity.entity_id} />;
   });
+  const coverCards = entityIdsByDomain["cover"].map((entityId) => (
+    <custom-bubble-card card_type="cover" entity={entityId} />
+  ));
+  const climateCards = entityIdsByDomain["climate"].map((entityId) => (
+    <custom-mushroom-climate-card
+      entity={entityId}
+      collapsible_controls={false}
+      fill_container={false}
+      hvac_modes={["heat", "cool"]}
+      show_temperature_control={true}
+      hold_action={{ action: "more-info" }}
+      double_tap_action={{ action: "more-info" }}
+      card_mod={{
+        style: "ha-card {\n  border: none;\n  padding: 0 !important;\n}\n",
+      }}
+    />
+  ));
+  const cameraCards = entityIdsByDomain["camera"].map((entityId) => {
+    return <picture-entity entity={entityId} />;
+  });
+  const mediaPlayerCards = entityIdsByDomain["media_player"].map((entityId) => (
+    <custom-bubble-card
+      card_type="button"
+      entity={entityId}
+      button_type="switch"
+      show_state={true}
+    />
+  ));
+
+  const binarySensorCards = entityIdsByDomain["binary_sensor"].map(
+    (entityId) => (
+      <custom-bubble-card
+        card_type="button"
+        entity={entityId}
+        button_type="custom"
+        show_state={true}
+      />
+    )
+  );
+  const sensorCards = entityIdsByDomain["sensor"].map((entityId) => (
+    <custom-bubble-card
+      card_type="button"
+      entity={entityId}
+      button_type="custom"
+      show_state={true}
+    />
+  ));
+
+  const prependTitleCard = (cards: Array<any>, titleCard: any) => {
+    if (cards.length < 1) {
+      return [];
+    }
+
+    return [titleCard, ...cards];
+  };
+
+  const cards = [
+    ...prependTitleCard(
+      groupCards(lightCards, 2),
+      <custom-bubble-card
+        card_type="separator"
+        name="Lights"
+        icon="mdi:lightbulb"
+      />
+    ),
+    ...prependTitleCard(
+      groupCards(coverCards, 2),
+      <custom-bubble-card
+        card_type="separator"
+        name="Covers"
+        icon="mdi:cover"
+      />
+    ),
+    ...prependTitleCard(
+      climateCards,
+      <custom-bubble-card
+        card_type="separator"
+        name="Climate"
+        icon="mdi:thermostat"
+      />
+    ),
+    ...prependTitleCard(
+      groupCards(mediaPlayerCards, 2),
+      <custom-bubble-card
+        card_type="separator"
+        name="Media Players"
+        icon="mdi:multimedia"
+      />
+    ),
+    ...prependTitleCard(
+      cameraCards,
+      <custom-bubble-card
+        card_type="separator"
+        name="Cameras"
+        icon="mdi:camera"
+      />
+    ),
+    ...prependTitleCard(
+      [...binarySensorCards, ...sensorCards],
+      <custom-bubble-card card_type="separator" name="Sensors" />
+    ),
+  ];
 
   return (
     <vertical-stack>
@@ -56,27 +151,8 @@ const BubbleAreaCard = ({ area, entities, states, icon }: AreaConfig) => {
         // state="sensor.bureau_room_temperature"
         auto_close="15000"
       />
-      <custom-bubble-card
-        card_type="separator"
-        name="Lights"
-        icon="mdi:lightbulb"
-      />
-      {...entities
-        .filter((entity) => entity.entity_id.startsWith("light."))
-        .map((entity) => {
-          return (
-            <horizontal-stack>
-              <custom-bubble-card
-                card_type="button"
-                entity={entity.entity_id}
-                button_type="switch"
-                show_state={true}
-              />
-            </horizontal-stack>
-          );
-        })}
-      {...[coverCard, climateCard].filter(Boolean)}
-      {...cameraCards}
+
+      {...cards}
     </vertical-stack>
   );
 };
@@ -86,40 +162,41 @@ const BubbleHorizontalButtons = ({
 }: {
   areaConfigs: Array<AreaConfig>;
 }) => {
-  let bubbleHorizontalButtonsStackConfig: { [key: string]: string } = {};
-  areaConfigs.forEach((areaConfig, index) => {
-    bubbleHorizontalButtonsStackConfig[`_${index + 1}_link`] =
-      `#${areaConfig.area.area_id}`;
-    bubbleHorizontalButtonsStackConfig[`_${index + 1}_name`] =
-      areaConfig.area.name;
+  let bubbleHorizontalButtonsStackConfig: { [key: string]: string } =
+    areaConfigs
+      .map(({ area, entityIdsByDomain, states, icon }, index) => {
+        let buttonConfig: Record<string, string> = {
+          link: `#${area.area_id}`,
+          name: area.name,
+        };
 
-    const entityId = findFirstStatesEntityId(
-      areaConfig.states,
-      "light",
-      undefined,
-      (entity) => /group/i.test(entity.attributes.icon || "")
-    );
-    if (entityId) {
-      bubbleHorizontalButtonsStackConfig[`_${index + 1}_entity`] = entityId;
-    }
-    if (areaConfig.icon) {
-      bubbleHorizontalButtonsStackConfig[`_${index + 1}_icon`] =
-        areaConfig.icon;
-    }
+        const lightGroupEntityId = R.find(
+          entityIdsByDomain["light"],
+          (entityId) => /group/i.test(states[entityId].attributes.icon || "")
+        );
+        if (lightGroupEntityId) {
+          buttonConfig["entity"] = lightGroupEntityId;
+        }
+        if (icon) {
+          buttonConfig["icon"] = icon;
+        }
 
-    const motionEntityId =
-      findFirstStatesEntityId(areaConfig.states, "binary_sensor", "motion") ||
-      findFirstStatesEntityId(
-        areaConfig.states,
-        "binary_sensor",
-        "occupancy"
-      ) ||
-      findFirstStatesEntityId(areaConfig.states, "binary_sensor", "presence");
-    if (motionEntityId) {
-      bubbleHorizontalButtonsStackConfig[`_${index + 1}_pir_sensor`] =
-        motionEntityId;
-    }
-  });
+        const motionEntityId =
+          findFirstStatesEntityId(states, "binary_sensor", "motion") ||
+          findFirstStatesEntityId(states, "binary_sensor", "occupancy") ||
+          findFirstStatesEntityId(states, "binary_sensor", "presence");
+        if (motionEntityId) {
+          buttonConfig[`pir_sensor`] = motionEntityId;
+        }
+
+        return R.mapKeys(buttonConfig, (key) => `_${index + 1}_${key}`);
+      })
+      .reduce((acc, buttonConfig) => {
+        return {
+          ...acc,
+          ...buttonConfig,
+        };
+      }, {});
 
   return (
     <vertical-stack>
