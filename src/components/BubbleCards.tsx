@@ -1,6 +1,6 @@
+import { AreaConfig } from "../area";
 import { elementToConfig } from "../jsx";
-import { AreaConfig } from "../strategy";
-import { findFirstStatesEntityId, findStatesEntities } from "../strategy-utils";
+
 import * as R from "remeda";
 
 export const BubbleCards = ({
@@ -22,10 +22,9 @@ const groupCards = (cards: Array<any>, groupSize: number) => {
 
 const BubbleAreaCard = ({
   area,
-  entities,
-  states,
   icon,
   entityIdsByDomain,
+  mainEntities,
 }: AreaConfig) => {
   const lightCards = entityIdsByDomain["light"].map((entityId) => {
     return (
@@ -147,8 +146,8 @@ const BubbleAreaCard = ({
         hash={`#${area.area_id}`}
         name={area.name}
         icon={icon}
-        // entity="light.bureau"
-        // state="sensor.bureau_room_temperature"
+        entity={mainEntities.light}
+        state={mainEntities.temperature}
         auto_close="15000"
       />
 
@@ -164,33 +163,27 @@ const BubbleHorizontalButtons = ({
 }) => {
   let bubbleHorizontalButtonsStackConfig: { [key: string]: string } =
     areaConfigs
-      .map(({ area, entityIdsByDomain, states, icon }, index) => {
+      .map(({ area, icon, mainEntities }) => {
         let buttonConfig: Record<string, string> = {
           link: `#${area.area_id}`,
           name: area.name,
         };
 
-        const lightGroupEntityId = R.find(
-          entityIdsByDomain["light"],
-          (entityId) => /group/i.test(states[entityId].attributes.icon || "")
-        );
-        if (lightGroupEntityId) {
-          buttonConfig["entity"] = lightGroupEntityId;
+        if (mainEntities.light) {
+          buttonConfig["entity"] = mainEntities.light;
         }
         if (icon) {
           buttonConfig["icon"] = icon;
         }
-
-        const motionEntityId =
-          findFirstStatesEntityId(states, "binary_sensor", "motion") ||
-          findFirstStatesEntityId(states, "binary_sensor", "occupancy") ||
-          findFirstStatesEntityId(states, "binary_sensor", "presence");
-        if (motionEntityId) {
-          buttonConfig[`pir_sensor`] = motionEntityId;
+        if (mainEntities.motion) {
+          buttonConfig[`pir_sensor`] = mainEntities.motion;
         }
 
-        return R.mapKeys(buttonConfig, (key) => `_${index + 1}_${key}`);
+        return buttonConfig;
       })
+      .map((buttonConfig, index) =>
+        R.mapKeys(buttonConfig, (key) => `_${index + 1}_${key}`)
+      )
       .reduce((acc, buttonConfig) => {
         return {
           ...acc,

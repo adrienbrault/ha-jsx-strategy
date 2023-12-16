@@ -1,3 +1,4 @@
+import { AreaConfig, configFactory } from "./area";
 import { BubbleCards } from "./components/BubbleCards";
 import { HomeArea } from "./components/HomeArea";
 import {
@@ -8,60 +9,7 @@ import {
 import { elementToConfig } from "./jsx";
 import { States } from "./strategy-utils";
 
-export type AreaConfig = {
-  area: AreaRegistryEntry;
-  entities: Array<EntityRegistryEntry>;
-  states: States;
-  icon?: string;
-  entityIdsByDomain: {
-    [domain: string]: Array<string>;
-  };
-};
-
-const configFactory = (
-  areas: Array<AreaRegistryEntry>,
-  entities: Array<EntityRegistryEntry>,
-  states: States,
-  areasConfig: Config["areas"]
-): Array<AreaConfig> => {
-  return areas
-    .filter((area) => !area.area_id.startsWith("sonos_"))
-    .map((area) => {
-      const areaEntities = entities.filter(
-        (entity) => entity.area_id === area.area_id
-      );
-      const areaStates = Object.fromEntries(
-        Object.entries(states).filter(([entityId]) =>
-          areaEntities.some((entity) => entity.entity_id === entityId)
-        )
-      );
-
-      let entityIdsByDomain: {
-        [domain: string]: Array<string>;
-      } = Object.fromEntries(domains.map((domain) => [domain, []]));
-      entityIdsByDomain = areaEntities
-        .map((entity) => ({
-          domain: entity.entity_id.split(".")[0],
-          entity,
-        }))
-        .reduce((acc, { domain, entity }) => {
-          return {
-            ...acc,
-            [domain]: [...(acc[domain] || []), entity.entity_id],
-          };
-        }, entityIdsByDomain);
-
-      return {
-        area,
-        entities: areaEntities,
-        states: areaStates,
-        icon: areasConfig?.[area.area_id]?.icon,
-        entityIdsByDomain,
-      };
-    });
-};
-
-type Config = {
+export type StrategyConfig = {
   areas?: {
     [area: string]: {
       icon?: string;
@@ -72,7 +20,7 @@ type Config = {
 class JsxStrategy {
   static async generateDashboard(info) {
     const states: States = info.hass.states;
-    const config: Config = info.config.strategy;
+    const config: StrategyConfig = info.config.strategy;
 
     const [areas, devices, entities]: [
       Array<AreaRegistryEntry>,
@@ -118,32 +66,3 @@ class JsxStrategy {
 }
 
 customElements.define("ll-strategy-jsx", JsxStrategy);
-const domains = [
-  "light",
-  "switch",
-  "input_boolean",
-  "input_number",
-  "input_select",
-  "input_text",
-  "input_datetime",
-  "scene",
-  "script",
-  "automation",
-  "cover",
-  "fan",
-  "media_player",
-  "lock",
-  "climate",
-  "humidifier",
-  "person",
-  "number",
-  "select",
-  "template",
-  "update",
-  "camera",
-  "sensor",
-  "binary_sensor",
-  "thermostat",
-  "weather",
-  "plant",
-];
