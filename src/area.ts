@@ -66,6 +66,13 @@ export const configFactory = (
         "temperature"
       );
 
+      entityIdsByDomain["sensor"] = entityIdsByDomain["sensor"].filter(
+        (entityId) =>
+          ![undefined, "enum"].includes(
+            states[entityId].attributes.device_class
+          )
+      );
+
       return {
         area,
         entities: areaEntities,

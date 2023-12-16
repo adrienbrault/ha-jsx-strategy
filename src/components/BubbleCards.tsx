@@ -25,6 +25,7 @@ const BubbleAreaCard = ({
   icon,
   entityIdsByDomain,
   mainEntities,
+  states,
 }: AreaConfig) => {
   const lightCards = entityIdsByDomain["light"].map((entityId) => {
     return (
@@ -75,14 +76,12 @@ const BubbleAreaCard = ({
       />
     )
   );
-  const sensorCards = entityIdsByDomain["sensor"].map((entityId) => (
-    <custom-bubble-card
-      card_type="button"
-      entity={entityId}
-      button_type="custom"
-      show_state={true}
-    />
-  ));
+  const sensorCards = Object.values(
+    R.groupBy(
+      entityIdsByDomain["sensor"],
+      (entityId) => states[entityId].attributes.device_class
+    )
+  ).map((entityIds) => <custom-mini-graph-card entities={entityIds} />);
 
   const prependTitleCard = (cards: Array<any>, titleCard: any) => {
     if (cards.length < 1) {
