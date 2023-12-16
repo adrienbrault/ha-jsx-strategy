@@ -1,3 +1,4 @@
+import { BubbleCards } from "./components/BubbleCards";
 import { HomeArea } from "./components/HomeArea";
 import {
   AreaRegistryEntry,
@@ -6,6 +7,31 @@ import {
 } from "./config-types";
 import { elementToConfig } from "./jsx";
 import { States } from "./strategy-utils";
+
+export type AreaConfig = {
+  area: AreaRegistryEntry;
+  entities: Array<EntityRegistryEntry>;
+  states: States;
+};
+const configFactory = (
+  areas: Array<AreaRegistryEntry>,
+  entities: Array<EntityRegistryEntry>,
+  states: States
+): Array<AreaConfig> => {
+  return areas
+    .filter((area) => !area.area_id.startsWith("sonos_"))
+    .map((area) => {
+      const areaEntities = entities.filter(
+        (entity) => entity.area_id === area.area_id
+      );
+      const areaStates = Object.fromEntries(
+        Object.entries(states).filter(([entityId]) =>
+          areaEntities.some((entity) => entity.entity_id === entityId)
+        )
+      );
+      return { area, entities: areaEntities, states: areaStates };
+    });
+};
 
 class JsxStrategy {
   static async generateDashboard(info) {
@@ -21,32 +47,30 @@ class JsxStrategy {
       info.hass.callWS({ type: "config/entity_registry/list" }),
     ]);
 
+    const areaConfigs: Array<AreaConfig> = configFactory(
+      areas,
+      entities,
+      states
+    );
+
     console.log("JSX Strategy state: ", { areas, devices, entities });
+
     const config = {
-      title: "Generated Dashboard",
+      title: "JSX Strategy Dashboard",
       views: [
         {
-          cards: areas.map((area) => {
-            const areaEntities = entities.filter(
-              (entity) => entity.area_id === area.area_id
-            );
-            const areaStates = Object.fromEntries(
-              Object.entries(states).filter(([entityId]) =>
-                areaEntities.some((entity) => entity.entity_id === entityId)
-              )
-            );
-            return (
-              <HomeArea
-                area={area}
-                entities={areaEntities}
-                states={areaStates}
-              />
-            );
-          }),
+          cards: [
+            ...areaConfigs.map(({ area, entities, states }) => (
+              <HomeArea area={area} entities={entities} states={states} />
+            )),
+            ...(<BubbleCards areaConfigs={areaConfigs} />),
+          ],
         },
       ],
     };
+
     console.log("JSX Strategy generated config: ", { config });
+
     return config;
   }
 }

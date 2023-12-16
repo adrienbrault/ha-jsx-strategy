@@ -1,4 +1,8 @@
-import { AreaRegistryEntry, EntityRegistryEntry } from "../config-types";
+import {
+  AreaRegistryEntry,
+  EntityRegistryEntry,
+  HassEntity,
+} from "../config-types";
 import { elementToConfig } from "../jsx";
 import {
   States,
@@ -25,7 +29,7 @@ export const HomeArea = ({
       secondary={secondary}
       icon="mdi:texture-box"
       icon_color="blue"
-      tap_action={{ action: "navigate", navigation_path: area.area_id }}
+      tap_action={{ action: "navigate", navigation_path: `#${area.area_id}` }}
       badge_color={badge_color}
       badge_icon={badge_icon}
     />
@@ -49,71 +53,107 @@ export const HomeArea = ({
   return card;
 };
 
-const areaSecondary = (states: States) => {
-  let secondaries: string[] = [];
-  const temperatureSensorId = findFirstStatesEntityId(
-    states,
-    "sensor",
-    "temperature"
-  );
-  const humiditySensorId = findFirstStatesEntityId(
-    states,
-    "sensor",
-    "humidity"
-  );
-  const illuminanceSensorId = findFirstStatesEntityId(
-    states,
-    "sensor",
-    "illuminance"
-  );
+type SecondaryConfig = Array<{
+  domain: string;
+  /**
+   * Template to render the secondary text. Render the state variable
+   * @example
+   * 💧{{ __state__ | int }}%
+   * @example
+   * ☀️{{ __state__ }}lx
+   */
+  template: string;
+  deviceClass?: string;
+}>;
+const DefaultSecondaryConfig: SecondaryConfig = [
+  {
+    domain: "sensor",
+    deviceClass: "temperature",
+    template: "🌡️{{ __state__ | int }}°",
+  },
+  {
+    domain: "sensor",
+    deviceClass: "humidity",
+    template: "💧{{ __state__ | int }}{{ __uom__ }}",
+  },
+  {
+    domain: "sensor",
+    deviceClass: "illuminance",
+    template: "☀️{{ __state__ | int }}{{ __uom__ }}",
+  },
+  {
+    domain: "sensor",
+    deviceClass: "carbon_dioxide",
+    template: "💨{{ __state__ }}{{ __uom__ }}",
+  },
+];
 
-  if (temperatureSensorId) {
-    secondaries.push(`🌡️{{ states('${temperatureSensorId}') | int }}°`);
-  }
-  if (humiditySensorId) {
-    secondaries.push(`💧{{ states('${humiditySensorId}') | int }}%`);
-  }
-  if (illuminanceSensorId) {
-    secondaries.push(`☀️{{ states('${illuminanceSensorId}')}}lx`);
-  }
+const areaSecondary = (
+  states: States,
+  config: SecondaryConfig = DefaultSecondaryConfig
+) => {
+  let secondaries: string[] = config
+    .map(({ domain, template, deviceClass }) => {
+      const entityId = findFirstStatesEntityId(states, domain, deviceClass);
+      if (!entityId) {
+        return null;
+      }
+      return template
+        .replace("__state__", `states('${entityId}')`)
+        .replace("__uom__", `state_attr('${entityId}', 'unit_of_measurement')`);
+    })
+    .filter((secondary) => secondary !== null) as string[];
+
   return secondaries.join(" ");
 };
 
-const areaBadge = (states: States) => {
-  const lockId = findFirstStatesEntityId(states, "lock");
-  const windowBinarySensorId = findFirstStatesEntityId(
-    states,
-    "binary_sensor",
-    "window"
-  );
-  const doorBinarySensorId = findFirstStatesEntityId(
-    states,
-    "binary_sensor",
-    "door"
-  );
-
-  let badgeConditions = [];
-  if (lockId) {
-    badgeConditions.push({
-      entity: lockId,
-      state: "unlocked",
-      icon: "mdi:lock-open",
-    });
-  }
-  if (windowBinarySensorId) {
-    badgeConditions.push({
-      entity: windowBinarySensorId,
-      state: "on",
-      icon: "mdi:window-open-variant",
-    });
-  }
-  if (doorBinarySensorId) {
-    badgeConditions.push({
-      entity: doorBinarySensorId,
-      state: "on",
-      icon: "mdi:door-open",
-    });
-  }
+type BadgeConfig = Array<{
+  domain: string;
+  deviceClass?: string;
+  state: string;
+  icon: string;
+}>;
+const DefaultBadgeConfig: BadgeConfig = [
+  {
+    domain: "lock",
+    state: "unlocked",
+    icon: "mdi:lock-open",
+  },
+  {
+    domain: "binary_sensor",
+    deviceClass: "window",
+    state: "on",
+    icon: "mdi:window-open-variant",
+  },
+  {
+    domain: "binary_sensor",
+    deviceClass: "door",
+    state: "on",
+    icon: "mdi:door-open",
+  },
+];
+type BadgeCondition = {
+  entity: string;
+  state: string;
+  icon: string;
+};
+const areaBadge = (
+  states: States,
+  config: BadgeConfig = DefaultBadgeConfig
+) => {
+  let badgeConditions = config
+    .map(({ domain, deviceClass, state, icon }) => {
+      const entityId = findFirstStatesEntityId(states, domain, deviceClass);
+      if (!entityId) {
+        return null;
+      }
+      return {
+        entity: entityId,
+        state,
+        icon,
+      };
+    })
+    .filter((condition) => condition !== null) as Array<BadgeCondition>;
 
   let badge_color = undefined;
   let badge_icon = undefined;
@@ -168,69 +208,79 @@ const makeChip = (
         chip,
       };
 };
-
-const areaChips = (states: States) => {
-  let chips = [];
-
-  let motion =
-    findFirstStatesEntityId(states, "binary_sensor", "motion") ||
-    findFirstStatesEntityId(states, "binary_sensor", "occupancy") ||
-    findFirstStatesEntityId(states, "binary_sensor", "presence");
-
-  if (motion) {
-    chips.push(
-      makeChip("conditional", motion, {
-        icon: "mdi:motion-sensor",
-        tap_action: {
-          action: "more-info",
-        },
-      })
-    );
-  }
-
-  findStatesEntities(states, "media_player").forEach((entity) => {
-    chips.push(
-      makeChip("conditional", entity.entity_id, {}, { state: "playing" })
-    );
-    chips.push(makeChip("conditional", entity.entity_id, {}, { state: "on" }));
-  });
-
-  findStatesEntities(states, "climate").forEach((entity) => {
-    chips.push(
-      makeChip("conditional", entity.entity_id, {}, { state_not: "off" })
-    );
-  });
-
-  const lightGroup = findStatesEntities(states, "light").filter((entity) =>
-    /group/i.test(entity.attributes.icon || "")
-  )[0]?.entity_id;
-
-  if (lightGroup) {
-    let lightChip = {
-      type: "conditional",
-      conditions: [{ entity: lightGroup, state: "on" }],
-      chip: {
-        type: "template",
-        entity: lightGroup,
-        icon: "mdi:lightbulb-group",
-        // content: `{{ ['${lightGroup}'] | expand | selectattr('state','eq','on') | list | count }}`,
-        tap_action: {
-          action: "toggle",
-        },
-        double_tap_action: {
-          action: "more-info",
-        },
-        hold_action: {
-          action: "more-info",
-        },
+type ChipsConfig = Array<{
+  candidates: Array<{
+    domain: string;
+    deviceClass?: string;
+    filter?: (entity: HassEntity) => boolean;
+  }>;
+  options?: any;
+  conditions?: Array<{ [key: string]: any }>;
+}>;
+const DefaultChipsConfig: ChipsConfig = [
+  {
+    candidates: [
+      { domain: "binary_sensor", deviceClass: "motion" },
+      { domain: "binary_sensor", deviceClass: "occupancy" },
+      { domain: "binary_sensor", deviceClass: "presence" },
+    ],
+    options: {
+      icon: "mdi:motion-sensor",
+      tap_action: {
+        action: "more-info",
       },
-    };
-    chips.push(lightChip);
-  }
-  return chips;
-};
+    },
+  },
+  {
+    candidates: [{ domain: "media_player" }],
+    conditions: [{ state: "playing" }, { state: "on" }],
+  },
+  {
+    candidates: [{ domain: "climate" }],
+    conditions: [{ state_not: "off" }],
+  },
+  {
+    candidates: [
+      {
+        domain: "light",
+        filter: (entity) => /group/i.test(entity.attributes.icon || ""),
+      },
+    ],
+    conditions: [{ state: "on" }],
+    options: {
+      icon: "mdi:lightbulb-group",
+    },
+  },
+];
+const areaChips = (
+  states: States,
+  config: ChipsConfig = DefaultChipsConfig
+) => {
+  let chips = config
+    .map(({ candidates, options, conditions, filter }) => {
+      let entityId: string | null = null;
+      for (let candidate of candidates) {
+        entityId = findFirstStatesEntityId(
+          states,
+          candidate.domain,
+          candidate.deviceClass,
+          filter
+        );
+        if (entityId) {
+          break;
+        }
+      }
+      if (!entityId) {
+        return null;
+      }
 
-const AreaChips = ({ chips }: { chips: ReturnType<typeof areaChips> }) => {
+      return conditions?.map((condition) =>
+        makeChip("conditional", entityId, options, condition)
+      );
+    })
+    .filter((chip) => Array.isArray(chip));
+  // flatten
+  chips = [].concat.apply([], chips);
   chips = chips.map((chip) => {
     const card_mod = {
       style: `:host {
@@ -257,6 +307,10 @@ const AreaChips = ({ chips }: { chips: ReturnType<typeof areaChips> }) => {
     };
   });
 
+  return chips;
+};
+
+const AreaChips = ({ chips }: { chips: ReturnType<typeof areaChips> }) => {
   return (
     <custom-mushroom-chips-card
       alignment="start"
