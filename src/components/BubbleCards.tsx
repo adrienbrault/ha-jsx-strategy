@@ -14,9 +14,12 @@ export const BubbleCards = ({
   ];
 };
 
-const groupCards = (cards: Array<any>, groupSize: number) => {
+const groupCards: <T>(cards: Array<T>, groupSize: number) => any = (
+  cards,
+  groupSize
+) => {
   return R.chunk(cards, groupSize).map((group) => (
-    <horizontal-stack>{...group}</horizontal-stack>
+    <horizontal-stack cards={group} />
   ));
 };
 
