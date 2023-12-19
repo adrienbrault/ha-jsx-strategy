@@ -39,6 +39,8 @@ strategy:
       icon: mdi:stove
 ```
 
+https://github.com/adrienbrault/ha-jsx-strategy/assets/611271/d0972b6a-d392-459b-8c55-05cf41f9926e
+
 The following custom cards are required:
 - [piitaya/lovelace-mushroom](https://github.com/piitaya/lovelace-mushroom)
 - [Clooos/bubble-card](https://github.com/Clooos/bubble-card)
