@@ -34,7 +34,7 @@ const DefaultCardFactoryMap: CardFactoryMap = {
       <custom-bubble-card
         card_type="button"
         entity={entityId}
-        button_type="switch"
+        button_type="slider"
         show_state={true}
       />
     );
