@@ -98,6 +98,12 @@ const DefaultCardFactoryMap: CardFactoryMap = {
 
 type BubbleAreaCardProps = AreaConfig & { cardFactoryMap?: CardFactoryMap };
 
+const responsiveGrid = (cards: any[], columns: number) => {
+  return R.chunk(cards, columns).map((chunkCards: any[]) => (
+    <horizontal-stack>{...chunkCards}</horizontal-stack>
+  ));
+};
+
 const BubbleAreaCard = ({
   area,
   icon,
@@ -116,9 +122,7 @@ const BubbleAreaCard = ({
         name="Lights"
         icon="mdi:lightbulb"
       />,
-      <grid columns={2} square={false}>
-        {...lightCards}
-      </grid>
+      ...responsiveGrid(lightCards, 2)
     );
   }
 
@@ -131,9 +135,8 @@ const BubbleAreaCard = ({
         name="Covers"
         icon="mdi:thermostat"
       />,
-      <grid columns={2} square={false}>
-        {...coverCards}
-      </grid>
+
+      ...responsiveGrid(coverCards, 2)
     );
   }
 
@@ -148,9 +151,7 @@ const BubbleAreaCard = ({
         name="Climate"
         icon="mdi:thermostat"
       />,
-      <grid columns={2} square={false}>
-        {...climateCards}
-      </grid>
+      ...responsiveGrid(climateCards, 2)
     );
   }
 
@@ -177,9 +178,7 @@ const BubbleAreaCard = ({
         name="Media Players"
         icon="mdi:multimedia"
       />,
-      <grid columns={2} square={false}>
-        {...mediaPlayerCards}
-      </grid>
+      ...responsiveGrid(mediaPlayerCards, 2)
     );
   }
 
