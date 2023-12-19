@@ -47,7 +47,11 @@ import { ThermostatCardConfig } from "./cards/thermostat";
 import { TileCardConfig } from "./cards/tile";
 import { WeatherForecastCardConfig } from "./cards/weather-forecast";
 
-export function elementToConfig(type, props, ...children) {
+export function elementToConfig<T extends keyof JSX.IntrinsicElements>(
+  type: T,
+  props: { [key: string]: string },
+  ...children: any[]
+): { [key: string]: any } {
   if (props) {
     // jsx doesn't like attributes that start with a number, so those are prefixed with an underscore
     // we need to remove that underscore
