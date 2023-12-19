@@ -60,7 +60,6 @@ class JsxStrategy {
       ],
     };
 
-    console.groupCollapsed("JSX Strategy generated config:");
     const yamlConfig = stringify(dashboard, {
       defaultStringType: "PLAIN",
       defaultKeyType: "PLAIN",
@@ -68,6 +67,12 @@ class JsxStrategy {
       lineWidth: 0,
       doubleQuotedMinMultiLineLength: 1000000,
     });
+    const yamlConfigLines = yamlConfig.split("\n").length;
+
+    console.groupCollapsed(
+      `JSX Strategy generated config, ${yamlConfigLines} lines:`
+    );
+
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     // when logged string is too big, safari doesnt hide it 🤷‍♂️. Logging an object works.
     console.log(isSafari ? { yamlConfig } : yamlConfig);
