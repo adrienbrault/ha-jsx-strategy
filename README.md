@@ -1,4 +1,4 @@
-# ha-react-dashboard
+# ha-jsx-strategy
 
 [Home Assistant Custom Strategies](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-strategy/)
 enable you to build your own dashboards using javascript.
@@ -11,6 +11,39 @@ VSCode will provide you with intellisense and type checking using [a library of 
 
 ![CleanShot 2023-12-15 at 03 07 53@2x](https://github.com/adrienbrault/ha-jsx-strategy/assets/611271/1f67f5b3-7d87-40c8-95b1-d1f9ceb35e5e)
 ![CleanShot 2023-12-15 at 03 09 08@2x](https://github.com/adrienbrault/ha-jsx-strategy/assets/611271/de8a4d78-6584-4aec-8c9e-00c2bb12088b)
+
+## WIP Default Dashboard
+
+The repo ships with my own strategy. It is heavily inspired by [AalianKhan/mushroom-strategy](https://github.com/AalianKhan/mushroom-strategy).
+
+The dashboard is automatically generated using the areas and the entities assigned to each area.
+
+In order for this strategy to work, you must organize your entities into [Home Assistant Areas](https://my.home-assistant.io/redirect/areas/).
+After creating areas, you assign devices or specific entities to areas by editing devices/entities from the UI.
+
+After configuring the Areas with entities, the dashboard will be automatically generated.
+
+I recommend that you configure the strategy with icons for each of your areas:
+
+```yaml
+strategy:
+  type: custom:jsx
+  areas:
+    salon:
+      icon: mdi:sofa
+    salle_a_manger:
+      icon: mdi:table-chair
+    bureau:
+      icon: mdi:desk-lamp
+    cuisine:
+      icon: mdi:stove
+```
+
+The following custom cards are required:
+- [piitaya/lovelace-mushroom](https://github.com/piitaya/lovelace-mushroom)
+- [Clooos/bubble-card](https://github.com/Clooos/bubble-card)
+- [kalkih/mini-graph-card](https://github.com/kalkih/mini-graph-card)
+- [custom-cards/stack-in-card](https://github.com/custom-cards/stack-in-card)
 
 ## Installation
 
