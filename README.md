@@ -46,6 +46,7 @@ The following custom cards are required:
 - [Clooos/bubble-card](https://github.com/Clooos/bubble-card)
 - [kalkih/mini-graph-card](https://github.com/kalkih/mini-graph-card)
 - [custom-cards/stack-in-card](https://github.com/custom-cards/stack-in-card)
+- [thomasloven/lovelace-card-mod](https://github.com/thomasloven/lovelace-card-mod)
 
 ## Installation
 
