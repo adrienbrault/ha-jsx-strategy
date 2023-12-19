@@ -14,25 +14,101 @@ export const BubbleCards = ({
   ];
 };
 
+type CardFactory = (entityId: string) => { [key: string]: any };
+type SensorCardFactory = (
+  entityIDs: string[],
+  deviceClass: string
+) => { [key: string]: any };
+type CardFactoryMap = {
+  light: CardFactory;
+  cover: CardFactory;
+  climate: CardFactory;
+  camera: CardFactory;
+  media_player: CardFactory;
+  binary_sensor: SensorCardFactory;
+  sensor: SensorCardFactory;
+};
+const DefaultCardFactoryMap: CardFactoryMap = {
+  light: (entityId) => {
+    return (
+      <custom-bubble-card
+        card_type="button"
+        entity={entityId}
+        button_type="switch"
+        show_state={true}
+      />
+    );
+  },
+  cover: (entityId) => (
+    <custom-bubble-card card_type="cover" entity={entityId} />
+  ),
+  climate: (entityId) => (
+    <custom-mushroom-climate-card
+      entity={entityId}
+      collapsible_controls={false}
+      fill_container={false}
+      hvac_modes={["heat", "cool"]}
+      show_temperature_control={true}
+      hold_action={{ action: "more-info" }}
+      double_tap_action={{ action: "more-info" }}
+      card_mod={{
+        style: "ha-card {\n  border: none;\n  padding: 0 !important;\n}\n",
+      }}
+    />
+  ),
+  camera: (entityId) => {
+    return <picture-entity entity={entityId} />;
+  },
+  media_player: (entityId) => (
+    <custom-bubble-card
+      card_type="button"
+      entity={entityId}
+      button_type="switch"
+      show_state={true}
+    />
+  ),
+  binary_sensor: (entityIds, deviceClass) => {
+    const stateMap = [
+      {
+        value: "off",
+        label: sensorStates[deviceClass][0] || sensorStates.None,
+      },
+      {
+        value: "on",
+        label: sensorStates[deviceClass][1] || sensorStates.None,
+      },
+    ];
+    return (
+      <custom-mini-graph-card
+        entities={entityIds}
+        hours_to_show="1"
+        points_per_hour="60"
+        update_interval="30"
+        aggregate_func="max"
+        line_width="2"
+        smoothing={false}
+        state_map={stateMap}
+      />
+    );
+  },
+  sensor: (entityIds, deviceClass) => (
+    <custom-mini-graph-card entities={entityIds} />
+  ),
+};
+
+type BubbleAreaCardProps = AreaConfig & { cardFactoryMap?: CardFactoryMap };
+
 const BubbleAreaCard = ({
   area,
   icon,
   entityIdsByDomain,
   mainEntities,
   states,
-}: AreaConfig) => {
+  cardFactoryMap = DefaultCardFactoryMap,
+}: BubbleAreaCardProps) => {
   let cards: any[] = [];
   if (entityIdsByDomain["light"].length > 0) {
-    const lightCards = entityIdsByDomain["light"].map((entityId) => {
-      return (
-        <custom-bubble-card
-          card_type="button"
-          entity={entityId}
-          button_type="switch"
-          show_state={true}
-        />
-      );
-    });
+    const lightCards = entityIdsByDomain["light"].map(cardFactoryMap.light);
 
     cards.push(
       <custom-bubble-card
@@ -47,9 +123,7 @@ const BubbleAreaCard = ({
   }
 
   if (entityIdsByDomain["cover"].length > 0) {
-    const coverCards = entityIdsByDomain["cover"].map((entityId) => (
-      <custom-bubble-card card_type="cover" entity={entityId} />
-    ));
+    const coverCards = entityIdsByDomain["cover"].map(cardFactoryMap.cover);
 
     cards.push(
       <custom-bubble-card
@@ -64,20 +138,9 @@ const BubbleAreaCard = ({
   }
 
   if (entityIdsByDomain["climate"].length > 0) {
-    const climateCards = entityIdsByDomain["climate"].map((entityId) => (
-      <custom-mushroom-climate-card
-        entity={entityId}
-        collapsible_controls={false}
-        fill_container={false}
-        hvac_modes={["heat", "cool"]}
-        show_temperature_control={true}
-        hold_action={{ action: "more-info" }}
-        double_tap_action={{ action: "more-info" }}
-        card_mod={{
-          style: "ha-card {\n  border: none;\n  padding: 0 !important;\n}\n",
-        }}
-      />
-    ));
+    const climateCards = entityIdsByDomain["climate"].map(
+      cardFactoryMap.climate
+    );
 
     cards.push(
       <custom-bubble-card
@@ -92,9 +155,7 @@ const BubbleAreaCard = ({
   }
 
   if (entityIdsByDomain["camera"].length > 0) {
-    const cameraCards = entityIdsByDomain["camera"].map((entityId) => {
-      return <picture-entity entity={entityId} />;
-    });
+    const cameraCards = entityIdsByDomain["camera"].map(cardFactoryMap.camera);
 
     cards.push(
       <custom-bubble-card
@@ -107,14 +168,7 @@ const BubbleAreaCard = ({
   }
   if (entityIdsByDomain["media_player"].length > 0) {
     const mediaPlayerCards = entityIdsByDomain["media_player"].map(
-      (entityId) => (
-        <custom-bubble-card
-          card_type="button"
-          entity={entityId}
-          button_type="switch"
-          show_state={true}
-        />
-      )
+      cardFactoryMap.media_player
     );
 
     cards.push(
@@ -138,36 +192,17 @@ const BubbleAreaCard = ({
         entityIdsByDomain["binary_sensor"],
         (entityId) => states[entityId].attributes.device_class
       )
-    ).map(([deviceClass, entityIds]) => {
-      const stateMap = [
-        {
-          value: "off",
-          label: sensorStates[deviceClass][0] || sensorStates.None,
-        },
-        {
-          value: "on",
-          label: sensorStates[deviceClass][1] || sensorStates.None,
-        },
-      ];
-      return (
-        <custom-mini-graph-card
-          entities={entityIds}
-          hours_to_show="1"
-          points_per_hour="60"
-          update_interval="30"
-          aggregate_func="max"
-          line_width="2"
-          smoothing={false}
-          state_map={stateMap}
-        />
-      );
-    });
-    const sensorCards = Object.values(
+    ).map(([deviceClass, entityIds]) =>
+      cardFactoryMap.binary_sensor(entityIds, deviceClass)
+    );
+    const sensorCards = Object.entries(
       R.groupBy(
         entityIdsByDomain["sensor"],
         (entityId) => states[entityId].attributes.device_class
       )
-    ).map((entityIds) => <custom-mini-graph-card entities={entityIds} />);
+    ).map(([deviceClass, entityIds]) =>
+      cardFactoryMap.sensor(entityIds, deviceClass)
+    );
 
     cards = [
       ...cards,
